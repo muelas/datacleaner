@@ -1,4 +1,4 @@
-package at.fhooe.datacleaner;
+package at.fhooe.analysis;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.regex.Pattern;
 
-public class Main {
+public class DataCleaner {
     public static final String[] mhNames = {"vLuft_Windkanal", "alpha", "beta"};
     public static final int mhnr = mhNames.length;
     public static final int[] mhCols = new int[mhnr];
