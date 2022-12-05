@@ -1,4 +1,4 @@
-package at.fhooe.datacleaner;
+package at.fhooe.analysis;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.regex.Pattern;
 
-public class Main {
+public class DataCleaner {
     public static final String[] mhNames = {"vLuft_Windkanal", "alpha", "beta"};
     public static final int mhnr = mhNames.length;
     public static final int[] mhCols = new int[mhnr];
@@ -15,23 +15,8 @@ public class Main {
         BufferedReader br = new BufferedReader(new FileReader("W:\\Users\\Andreas\\OneDrive\\OneDrive - FH OOe\\Dokumente\\FHOOE\\Forschung\\Datenanalyse\\wt0028.csv"));
         BufferedWriter bw = new BufferedWriter(new FileWriter("W:\\Users\\Andreas\\OneDrive\\OneDrive - FH OOe\\Dokumente\\FHOOE\\Forschung\\Datenanalyse\\weka.csv"));
 
-        System.out.println("Reading first line - column titles...");
         String line = br.readLine();
-
-        System.out.println("...splitting...");
-        String[] cols = line.split(Pattern.quote(","),-1);  // split by colon
-        final int colnr = cols.length;    // number of column names - required for each line
-        int mhc = 0;    // counter for the must-have-columns
-        for (int i = 0; i < cols.length; i++) {
-            for (String name : mhNames) {   // check all must-have-names
-                if (name.equals(cols[i])) { // if the current column is one of the must-have-columns
-                    mhCols[mhc++] = i;  // store column id where must-have-column was found
-                    System.out.println("..." + name + " is in column " + i + "...");
-                    break;  // break checking the names, since we already had a match
-                }
-            }
-        }
-        System.out.println("...done");
+        final int colnr = Util.extractTargetColumns(line, mhNames, mhCols);
 
         System.out.println("Checking file...");
         int cntR = 0;
@@ -41,7 +26,7 @@ public class Main {
             boolean drop = false;
             line = br.readLine();
             cntR++;
-            String[] lineSplit = line.split(Pattern.quote(","),-1);
+            String[] lineSplit = line.split(Pattern.quote(","), -1);
             if (lineSplit.length != colnr) {    // if number of columns does not match number of column names
 //                System.out.println("Row "+cntR+" has wrong number of columns: expected "+colnr+", was "+lineSplit.length);
                 drop = true;
@@ -56,11 +41,11 @@ public class Main {
             }
 
             if (!drop) {
-                for(int i=0;i<lineSplit.length;i++) {
-                    if(lineSplit[i].isBlank())
-                        lineSplit[i]="?";
+                for (int i = 0; i < lineSplit.length; i++) {
+                    if (lineSplit[i].isBlank())
+                        lineSplit[i] = "?";
                 }
-                bw.write(String.join(",",lineSplit));
+                bw.write(String.join(",", lineSplit));
                 bw.newLine();
                 cntW++;
             }
