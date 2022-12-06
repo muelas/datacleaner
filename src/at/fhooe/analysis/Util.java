@@ -1,7 +1,5 @@
 package at.fhooe.analysis;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -18,7 +16,7 @@ public class Util {
      * @return
      * @throws IOException
      */
-    public static int extractTargetColumns(@NotNull String header, String[] targetNames, int[] targetCols, CorrelationData cd, boolean debug) throws IOException {
+    public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols, CorrelationData cd, boolean debug) throws IOException {
         if (debug) System.out.println("Reading column titles to identify target columns...");
 //        System.out.println("...splitting...");
         String[] cols = header.split(Pattern.quote(";"), -1);  // split by colon
@@ -57,12 +55,12 @@ public class Util {
         return colnr;
     }
 
-    public static int extractTargetColumns(@NotNull String header, String[] targetNames, int[] targetCols, CorrelationData cd) throws IOException {
+    public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols, CorrelationData cd) throws IOException {
         return extractTargetColumns(header, targetNames, targetCols, cd, false);
     }
 
 
-    public static int extractTargetColumns(@NotNull String header, String[] targetNames, int[] targetCols) throws IOException {
+    public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols) throws IOException {
         return extractTargetColumns(header, targetNames, targetCols, null, false);
     }
 
