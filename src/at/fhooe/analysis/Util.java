@@ -12,9 +12,13 @@ public class Util {
      *
      * @param header      The column headers to be analyzed, e.g., the first line of a csv file.
      * @param targetNames Names of the columns that should be found
-     * @param targetCols
-     * @return
-     * @throws IOException
+     * @param targetCols  Output parameter! Contains the ids (column-numbers) of the target columns in the header.
+     * @param cd          Datastructure that should contain the name of the column that should be analyzed for
+     *                    correlation with the target columns. If the column is found, the respective id (column-number)
+     *                    will be set in the datastructure. Ignored if null.
+     * @param debug       If true, the method will print debug output.
+     * @return            Returns the number of overall columns found in the header.
+     * @throws IOException Caused by file access.
      */
     public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols, CorrelationData cd, boolean debug) throws IOException {
         if (debug) System.out.println("Reading column titles to identify target columns...");
@@ -24,15 +28,14 @@ public class Util {
         final int colnr = cols.length;
         int mhc = 0;    // counter for the target-columns
 
-        /*
-        System.out.print("...searching for columns ");
-        for (String name : targetNames) {
-            System.out.print(name);
-            System.out.print(", ");
+        if(debug) {
+            System.out.print("...searching for columns ");
+            for (String name : targetNames) {
+                System.out.print(name);
+                System.out.print(", ");
+            }
+            System.out.println("...");
         }
-        System.out.println("...");
-        */
-
 
         for (int i = 0; i < cols.length; i++) {
 //            System.out.println("...comparing column '"+cols[i]+"'...");
@@ -91,10 +94,6 @@ public class Util {
             }
         }
         return lineData;
-    }
-
-    public static double pearsonsCorrelation(double[] x, double[] y) {
-        return 0;
     }
 
     public static class CorrelationData {
