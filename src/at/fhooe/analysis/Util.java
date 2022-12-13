@@ -2,6 +2,7 @@ package at.fhooe.analysis;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 public class Util {
@@ -17,7 +18,7 @@ public class Util {
      *                    correlation with the target columns. If the column is found, the respective id (column-number)
      *                    will be set in the datastructure. Ignored if null.
      * @param debug       If true, the method will print debug output.
-     * @return            Returns the number of overall columns found in the header.
+     * @return Returns the number of overall columns found in the header.
      * @throws IOException Caused by file access.
      */
     public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols, CorrelationData cd, boolean debug) throws IOException {
@@ -28,7 +29,7 @@ public class Util {
         final int colnr = cols.length;
         int mhc = 0;    // counter for the target-columns
 
-        if(debug) {
+        if (debug) {
             System.out.print("...searching for columns ");
             for (String name : targetNames) {
                 System.out.print(name);
@@ -99,5 +100,38 @@ public class Util {
     public static class CorrelationData {
         public String name;
         public int col;
+
+        public CorrelationData() {
+            this(null, -1);
+        }
+
+        public CorrelationData(String name, int col) {
+            this.name = name;
+            this.col = col;
+        }
+    }
+
+    public static class CorrelationResult {
+        public double[] pc;
+        public double[] sr;
+        public LinkedList<Correlation> correlatios = new LinkedList<>();
+    }
+
+    public static class Correlation {
+        public CorrelationData col;
+        public CorrelationData target;
+        public double pc;
+        public int wFrom, wTo;
+
+        @Override
+        public String toString() {
+            return "Correlation{" +
+                    "col=" + col.name +
+                    ", target=" + target.name +
+                    ", pc=" + pc +
+                    ", wFrom=" + wFrom +
+                    ", wTo=" + wTo +
+                    '}';
+        }
     }
 }
