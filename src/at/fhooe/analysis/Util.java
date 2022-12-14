@@ -7,6 +7,11 @@ import java.util.regex.Pattern;
 
 public class Util {
 
+    // Files
+    public static final String HOME_PATH = "W:\\Users\\Andreas\\OneDrive";
+    public static final String WORK_PATH = "C:\\Users\\p27389";
+    public static final String ONEDRIVE_PATH = "\\OneDrive - FH OOe\\Dokumente\\FHOOE\\Forschung\\Datenanalyse\\";
+
     /**
      * Extract the indices of the target columns provided in the names array.
      * Returns the overall number of columns in the header.

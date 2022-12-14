@@ -17,14 +17,10 @@ public class Correlations {
     public static final int WINDOW = 1000;
     public static int colnr;    // number of overall columns in file
 
-    // Files
-    public static final String HOME_PATH = "W:\\Users\\Andreas\\OneDrive";
-    public static final String WORK_PATH = "C:\\Users\\p27389";
-    public static final String ONEDRIVE_PATH = "\\OneDrive - FH OOe\\Dokumente\\FHOOE\\Forschung\\Datenanalyse\\";
     public static final String IN_FILE_NAME = "cleaned.csv";
     public static final String OUT_FILE_NAME = "pc.txt";
-    public static final String IN_FILE = HOME_PATH + ONEDRIVE_PATH + IN_FILE_NAME;
-    public static final String OUT_FILE = HOME_PATH + ONEDRIVE_PATH + OUT_FILE_NAME;
+    public static final String IN_FILE = Util.HOME_PATH + Util.ONEDRIVE_PATH + IN_FILE_NAME;
+    public static final String OUT_FILE = Util.HOME_PATH + Util.ONEDRIVE_PATH + OUT_FILE_NAME;
 
 
     public static void main(String[] args) throws Exception {
