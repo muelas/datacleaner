@@ -1,6 +1,5 @@
 package at.fhooe.analysis;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
@@ -26,7 +25,7 @@ public class Util {
      * @return Returns the number of overall columns found in the header.
      * @throws IOException Caused by file access.
      */
-    public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols, CorrelationData cd, boolean debug) throws IOException {
+    public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols, CorrelationColumn cd, boolean debug) throws IOException {
         if (debug) System.out.println("Reading column titles to identify target columns...");
 //        System.out.println("...splitting...");
         String[] cols = header.split(Pattern.quote(";"), -1);  // split by colon
@@ -64,7 +63,7 @@ public class Util {
         return colnr;
     }
 
-    public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols, CorrelationData cd) throws IOException {
+    public static int extractTargetColumns(String header, String[] targetNames, int[] targetCols, CorrelationColumn cd) throws IOException {
         return extractTargetColumns(header, targetNames, targetCols, cd, false);
     }
 
@@ -102,15 +101,15 @@ public class Util {
         return lineData;
     }
 
-    public static class CorrelationData {
+    public static class CorrelationColumn {
         public String name;
         public int col;
 
-        public CorrelationData() {
+        public CorrelationColumn() {
             this(null, -1);
         }
 
-        public CorrelationData(String name, int col) {
+        public CorrelationColumn(String name, int col) {
             this.name = name;
             this.col = col;
         }
@@ -123,8 +122,8 @@ public class Util {
     }
 
     public static class Correlation {
-        public CorrelationData col;
-        public CorrelationData target;
+        public CorrelationColumn col;
+        public CorrelationColumn target;
         public double pc;
         public int wFrom, wTo;
 
