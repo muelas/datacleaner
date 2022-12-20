@@ -14,8 +14,8 @@ public class Correlations {
     public static final int[] targetCols = new int[tnr];    // ids of target columns (to be exctracted from file)
     public static final int PC = 0;
     public static final int SR = 1;
-    public static final int WINDOW = 1000;
-    public static final int OFFSET = 100;
+    public static final int WINDOW = 2500;
+    public static final int OFFSET = 2000;
     public static int colnr;    // number of overall columns in file
 
     public static final String IN_FILE_NAME = "cleaned.csv";
@@ -38,20 +38,35 @@ public class Correlations {
 
 
         // calculate pairwise correlation for single column
-//        Util.CorrelationResult corr = calculateCorrelation("Accel1 Z", WINDOW);
+        String colName = "Pressure3";
+        Util.CorrelationResult corr = calculateCorrelation(colName, WINDOW, OFFSET);
+        System.out.println("'" + colName + "' pearson correlation to ");
+        for (int j = 0; j < tnr; j++) {
+            System.out.println("  '" + targetNames[j] + "' = " + corr.pc[j]);
+        }
+        if (WINDOW > 0 && corr.correlatios.size() > 0) {
+            System.out.println("Windowed, size=" + WINDOW + ", offset=" + OFFSET);
+            for (Util.Correlation c : corr.correlatios) {
+                System.out.print("\u001B[31m");
+                //System.out.println("Pearson Correlation between '" + cd.name + "' and '" + targetNames[i] + "' is " + wPC);
+                System.out.println(c);
+                System.out.print("\u001B[30m");
+            }
+        }
+        System.out.println("");
 
-
+        /*
         // calculate pairwise correlation for all columns
         PrintWriter pw = new PrintWriter(new FileWriter(OUT_FILE));
 
         for (int i = 0; i < colnr; i++) {
-            Util.CorrelationResult corr = calculateCorrelation(cols[i], WINDOW,OFFSET);
+            Util.CorrelationResult corr = calculateCorrelation(cols[i], WINDOW, OFFSET);
             pw.println("'" + cols[i] + "' pearson correlation to ");
             for (int j = 0; j < tnr; j++) {
                 pw.println("  '" + targetNames[j] + "' = " + corr.pc[j]);
             }
             if (WINDOW > 0 && corr.correlatios.size() > 0) {
-                pw.println("Windowed, size=" + WINDOW);
+                pw.println("Windowed, size=" + WINDOW + ", offset=" + OFFSET);
                 for (Util.Correlation c : corr.correlatios) {
                     pw.println(c);
                 }
@@ -65,10 +80,11 @@ public class Correlations {
         }
         pw.close();
 
+         */
     }
 
     public static final Util.CorrelationResult calculateCorrelation(String s) throws Exception {
-        return calculateCorrelation(s, 0,0);
+        return calculateCorrelation(s, 0, 0);
     }
 
 
@@ -115,6 +131,7 @@ public class Correlations {
         Util.CorrelationResult corr = new Util.CorrelationResult();
 
         int linenr = 0;
+        int offsetCnt = 0;
         while (br.ready()) {
             line = br.readLine();
             double[] lineData = Util.parseLine(line, colnr, targetCols, cc.col);
@@ -149,28 +166,27 @@ public class Correlations {
                         wPC = (n * wSumProd[i] - wSum[i] * wSumCorr) / Math.sqrt((n * wSumSq[i] - (wSum[i] * wSum[i])) * (n * wSumSqCorr - (wSumCorr * wSumCorr)));
 
                         final double LIMIT = 0.85;
-                        if ((wPC > LIMIT || wPC < -LIMIT)) {
-                            if (wPC != Double.POSITIVE_INFINITY && wPC != Double.NEGATIVE_INFINITY) {
-                                Util.Correlation c = new Util.Correlation();
-                                c.col = new Util.CorrelationColumn(cc.name, cc.col);
-                                c.target = new Util.CorrelationColumn(targetNames[i], targetCols[i]);
-                                c.pc = wPC;
-                                c.wTo = linenr;
-                                c.wFrom = linenr - window;
-                                corr.correlatios.add(c);
-                                System.out.print("\u001B[31m");
-                                //System.out.println("Pearson Correlation between '" + cd.name + "' and '" + targetNames[i] + "' is " + wPC);
-                                System.out.println(c);
-                                System.out.print("\u001B[30m");
-                            }
-                        } else {
-//                            System.out.println("Pearson Correlation between '" + cd.name + "' and '" + targetNames[i] + "' is " + wPC);
+                        if ((wPC > LIMIT || wPC < -LIMIT) && (wPC != Double.POSITIVE_INFINITY && wPC != Double.NEGATIVE_INFINITY) && (offsetCnt > minOffset || corr.correlatios.isEmpty())) {
+                            Util.Correlation c = new Util.Correlation();
+                            c.col = new Util.CorrelationColumn(cc.name, cc.col);
+                            c.target = new Util.CorrelationColumn(targetNames[i], targetCols[i]);
+                            c.pc = wPC;
+                            c.wTo = linenr;
+                            c.wFrom = linenr - window;
+                            corr.correlatios.add(c);
+//                            System.out.print("\u001B[31m");
+//                            //System.out.println("Pearson Correlation between '" + cd.name + "' and '" + targetNames[i] + "' is " + wPC);
+//                            System.out.println(c);
+//                            System.out.print("\u001B[30m");
+                            offsetCnt=0;
                         }
 
                         final double subTarg = history[i].take();
                         wSum[i] -= subTarg;
                         wSumSq[i] -= subTarg * subTarg;
                         wSumProd[i] -= subTarg * subCol;
+                    } else {
+                        offsetCnt = 0;
                     }
                     // calculations for pearsons correlation with sliding window
                     wSum[i] += lineData[col];
@@ -194,6 +210,7 @@ public class Correlations {
             }
 
             linenr++;
+            offsetCnt++;
         }
 
         br.close();
