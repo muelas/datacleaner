@@ -19,8 +19,9 @@ public class Correlations {
 
     public static final String IN_FILE_NAME = "cleaned.csv";
     public static final String OUT_FILE_NAME = "pc.txt";
-    public static final String IN_FILE = Util.HOME_PATH + Util.ONEDRIVE_PATH + IN_FILE_NAME;
-    public static final String OUT_FILE = Util.HOME_PATH + Util.ONEDRIVE_PATH + OUT_FILE_NAME;
+    public static final boolean home = false;
+    public static final String IN_FILE = (home ? Util.HOME_PATH : Util.WORK_PATH) + Util.ONEDRIVE_PATH + IN_FILE_NAME;
+    public static final String OUT_FILE = (home ? Util.HOME_PATH : Util.WORK_PATH) + Util.ONEDRIVE_PATH + OUT_FILE_NAME;
 
 
     public static void main(String[] args) throws Exception {
@@ -48,9 +49,9 @@ public class Correlations {
             for (int j = 0; j < tnr; j++) {
                 pw.println("  '" + targetNames[j] + "' = " + corr.pc[j]);
             }
-            if(WINDOW>0 && corr.correlatios.size()>0) {
-                pw.println("Windowed, size="+WINDOW);
-                for(Util.Correlation c:corr.correlatios) {
+            if (WINDOW > 0 && corr.correlatios.size() > 0) {
+                pw.println("Windowed, size=" + WINDOW);
+                for (Util.Correlation c : corr.correlatios) {
                     pw.println(c);
                 }
             }
