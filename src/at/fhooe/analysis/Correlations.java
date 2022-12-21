@@ -19,7 +19,7 @@ public class Correlations {
     public static int colnr;    // number of overall columns in file
 
     public static final String IN_FILE_NAME = "cleaned.csv";
-    public static final String OUT_FILE_NAME = "pc.txt";
+    public static final String OUT_FILE_NAME = "pc-with-window.txt";
     public static final boolean home = false;
     public static final String IN_FILE = (home ? Util.HOME_PATH : Util.WORK_PATH) + Util.ONEDRIVE_PATH + IN_FILE_NAME;
     public static final String OUT_FILE = (home ? Util.HOME_PATH : Util.WORK_PATH) + Util.ONEDRIVE_PATH + OUT_FILE_NAME;
@@ -37,6 +37,7 @@ public class Correlations {
         br.close();
 
 
+        /*
         // calculate pairwise correlation for single column
         String colName = "Pressure3";
         Util.CorrelationResult corr = calculateCorrelation(colName, WINDOW, OFFSET);
@@ -54,8 +55,8 @@ public class Correlations {
             }
         }
         System.out.println("");
+        */
 
-        /*
         // calculate pairwise correlation for all columns
         PrintWriter pw = new PrintWriter(new FileWriter(OUT_FILE));
 
@@ -66,8 +67,9 @@ public class Correlations {
                 pw.println("  '" + targetNames[j] + "' = " + corr.pc[j]);
             }
             if (WINDOW > 0 && corr.correlatios.size() > 0) {
-                pw.println("Windowed, size=" + WINDOW + ", offset=" + OFFSET);
+                pw.println("  Windowed, size=" + WINDOW + ", offset=" + OFFSET);
                 for (Util.Correlation c : corr.correlatios) {
+                    pw.print("   ");
                     pw.println(c);
                 }
             }
@@ -79,8 +81,6 @@ public class Correlations {
 //            }
         }
         pw.close();
-
-         */
     }
 
     public static final Util.CorrelationResult calculateCorrelation(String s) throws Exception {
@@ -178,7 +178,7 @@ public class Correlations {
 //                            //System.out.println("Pearson Correlation between '" + cd.name + "' and '" + targetNames[i] + "' is " + wPC);
 //                            System.out.println(c);
 //                            System.out.print("\u001B[30m");
-                            offsetCnt=0;
+                            offsetCnt = 0;
                         }
 
                         final double subTarg = history[i].take();
