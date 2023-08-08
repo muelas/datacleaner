@@ -1,10 +1,12 @@
 package at.fhooe.windpuls.rule;
 
-public class SimpleCondition extends AbstractCondition {
+import at.fhooe.windpuls.rule.operation.OperationBinary;
+
+public class SimpleRule extends AbstractRule {
 
     final OperationBinary op;
 
-    public SimpleCondition(String column, double value, OperationBinary op) {
+    public SimpleRule(String column, double value, OperationBinary op) {
         super(column, value);
         this.op = op;
     }

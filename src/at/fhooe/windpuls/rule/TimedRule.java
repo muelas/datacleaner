@@ -1,7 +1,7 @@
 package at.fhooe.windpuls.rule;
 
-public class TimedCondition extends AbstractCondition {
-    final Condition cond;
+public class TimedRule extends AbstractRule {
+    final Rule cond;
     final int frame;
     int counter;
 
@@ -22,7 +22,7 @@ public class TimedCondition extends AbstractCondition {
         return cond.match(newValue);
     }
 
-    public TimedCondition(Condition cond, int frame) {
+    public TimedRule(Rule cond, int frame) {
         super(cond.getColumn(), cond.getValue());
         this.cond = cond;
         this.frame = frame;

@@ -17,5 +17,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="log4j-api-2.20.0" level="project" />
+    <orderEntry type="library" name="reflections" level="project" />
   </component>
 </module>

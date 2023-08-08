@@ -1,12 +1,19 @@
 package at.fhooe.windpuls.rule;
 
-import at.fhooe.windpuls.analysis.Util;
+import at.fhooe.windpuls.rule.operation.binary.GreaterEquals;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class RuleUtil {
@@ -37,13 +44,13 @@ public class RuleUtil {
             String line = br.readLine();
             String[] cols = line.split(Pattern.quote(";"), -1);  // split by colon
 
-            // Prepare conditions
-            log.debug("Creating conditions...");
-            Condition[] conditions = {
-                    new TimedCondition(new SimpleCondition("vLuft_Windkanal", 16.5, new GreaterEquals()), 10)
+            // Prepare rules
+            log.debug("Creating rules...");
+            Rule[] rules = {
+                    new TimedRule(new SimpleRule("vLuft_Windkanal", 16.5, new GreaterEquals()), 10)
             };
             log.debug("Looking up column numbers...");
-            extractColumnNumbers(cols, conditions);
+            extractColumnNumbers(cols, rules);
 
             log.debug("Reading from file...");
             while (br.ready()) {
@@ -64,12 +71,12 @@ public class RuleUtil {
 
                 log.trace("Checking all Conditions...");
                 final PrintWriter pwHelper = pw;
-                Arrays.stream(conditions).parallel().forEach(cond -> {
-                    double newVal = lineData[cond.getColumnNr()];
-                    if (cond.match(newVal)) {
-                        if (!(cond instanceof TimedCondition) || ((TimedCondition) cond).isNew()) {
-                            log.info("Match found for condition in line {}:\n{}", lineData[0], cond);
-                            pwHelper.println("Line " + lineData[0] + ": " + cond);
+                Arrays.stream(rules).parallel().forEach(rule -> {
+                    double newVal = lineData[rule.getColumnNr()];
+                    if (rule.match(newVal)) {
+                        if (!(rule instanceof TimedRule) || ((TimedRule) rule).isNew()) {
+                            log.info("Match found for condition in line {}:\n{}", lineData[0], rule);
+                            pwHelper.println("Line " + lineData[0] + ": " + rule);
                         }
                     }
                 });
@@ -90,24 +97,59 @@ public class RuleUtil {
         }
     }
 
-    public static void extractColumnNumbers(String[] cols, Condition... conds) {
+    public static String[] loadColumnNames() {
+        BufferedReader br = null;
+        try {
+            // Open file for reading
+            log.debug("Opening files...");
+            br = new BufferedReader(new FileReader(RuleUtil.IN_FILE));
+
+            // Read and split header line
+            log.debug("Processing header...");
+            String line = br.readLine();
+            String[] cols = line.split(Pattern.quote(";"), -1);  // split by colon
+            return cols;
+        } catch (IOException ioe) {
+            log.error("IOException occurred when loading column names", ioe);
+            return null;
+        } finally {
+            try {
+                br.close();
+            } catch (Exception e) {
+                log.error("Error closing BufferedReader", e);
+            }
+        }
+    }
+
+
+    public static void extractColumnNumbers(String[] cols, Rule... conds) {
         log.debug("Extracting Column Numbers...");
         for (int i = 0; i < cols.length; i++) {
             String col = cols[i];
             log.trace(col);
-            for (Condition cond : conds) {
+            for (Rule cond : conds) {
                 if (col.equals(cond.getColumn())) {
                     log.info("Column with name {} was found at # {}", cond.getColumn(), i);
                     cond.setColumnNr(i);
                 }
             }
         }
-        for (Condition cond : conds) {
+        for (Rule cond : conds) {
             log.info("{} has # {}", cond.getColumn(), cond.getColumnNr());
             if (cond.getColumnNr() == -1) {
                 log.fatal("Column {} was not found - aborting", cond.getColumn());
                 System.exit(-1);
             }
         }
+    }
+
+    public static Set<Class> findAllClassesUsingReflectionsLibrary(String packageName, Class<?> superClass) {
+        if (superClass == null) {
+            superClass = Object.class;
+        }
+        Reflections reflections = new Reflections(packageName, new SubTypesScanner(false));
+        return reflections.getSubTypesOf(Object.class)
+                .stream()
+                .collect(Collectors.toSet());
     }
 }

@@ -5,6 +5,9 @@
       <root url="jar://C:/Program Files/Java/apache-log4j-2.20.0-bin/log4j-core-2.20.0.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://C:/Program Files/Java/apache-log4j-2.20.0-bin/log4j-1.2-api-2.20.0-sources.jar!/" />
+      <root url="jar://C:/Program Files/Java/apache-log4j-2.20.0-bin/log4j-core-2.20.0-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

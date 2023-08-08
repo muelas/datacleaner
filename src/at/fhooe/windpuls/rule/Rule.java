@@ -1,6 +1,6 @@
 package at.fhooe.windpuls.rule;
 
-public interface Condition {
+public interface Rule {
     boolean match(double newValue);
     int getColumnNr();
     void setColumnNr(int colNr);

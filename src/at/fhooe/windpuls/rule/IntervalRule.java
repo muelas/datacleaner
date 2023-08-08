@@ -1,9 +1,11 @@
 package at.fhooe.windpuls.rule;
 
-public class IntervalCondition extends AbstractCondition {
+import at.fhooe.windpuls.rule.operation.OperationTernary;
+
+public class IntervalRule extends AbstractRule {
     OperationTernary op;
 
-    public IntervalCondition(String column, double from, double to, OperationTernary op) {
+    public IntervalRule(String column, double from, double to, OperationTernary op) {
         super(column, from, to);
         this.op = op;
     }

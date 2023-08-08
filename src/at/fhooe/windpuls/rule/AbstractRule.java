@@ -1,20 +1,20 @@
 package at.fhooe.windpuls.rule;
 
-public abstract class AbstractCondition implements Condition {
+public abstract class AbstractRule implements Rule {
     final String column;
     final double value;
     final double to;
     final double from;
     int columnNr = -1;
 
-    protected AbstractCondition(String column, double value) {
+    protected AbstractRule(String column, double value) {
         this.column = column;
         this.value = value;
         this.from = value;
         this.to = Double.NEGATIVE_INFINITY;
     }
 
-    public AbstractCondition(String column, double to, double from) {
+    public AbstractRule(String column, double to, double from) {
         this.column = column;
         this.to = to;
         this.from = from;
