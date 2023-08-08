@@ -1,4 +1,4 @@
-package at.fhooe.analysis;
+package at.fhooe.windpuls.analysis;
 
 import java.io.*;
 import java.util.regex.Pattern;

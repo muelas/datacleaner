@@ -1,4 +1,4 @@
-package at.fhooe.analysis;
+package at.fhooe.windpuls.analysis;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -10,6 +10,8 @@ public class Util {
     public static final String HOME_PATH = "W:\\Users\\Andreas\\OneDrive";
     public static final String WORK_PATH = "C:\\Users\\p27389";
     public static final String ONEDRIVE_PATH = "\\OneDrive - FH OOe\\Dokumente\\FHOOE\\Forschung\\Datenanalyse\\";
+    public static final String IN_FILE_NAME = "cleaned.csv";
+    public static final String OUT_FILE_NAME = "pc.txt";
 
     /**
      * Extract the indices of the target columns provided in the names array.
