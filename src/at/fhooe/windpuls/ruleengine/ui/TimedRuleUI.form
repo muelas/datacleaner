@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="at.fhooe.windpuls.rule.ui.TimedRuleUI">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="at.fhooe.windpuls.ruleengine.ui.TimedRuleUI">
   <grid id="27dc6" binding="timedRulePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
       <xy x="20" y="20" width="500" height="400"/>
     </constraints>
     <properties/>
-    <border type="none"/>
+    <border type="bevel-raised" title="Timed Rule"/>
     <children>
-      <component id="9d50a" class="javax.swing.JLabel" binding="timedRuleLabel">
-        <constraints border-constraint="North"/>
-        <properties>
-          <text value="TimedRule"/>
-        </properties>
-      </component>
       <grid id="f4aa2" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
         <constraints border-constraint="West"/>
         <properties/>
@@ -26,7 +20,9 @@
           </component>
           <component id="939d7" class="javax.swing.JTextField" binding="frameTex">
             <constraints/>
-            <properties/>
+            <properties>
+              <columns value="10"/>
+            </properties>
           </component>
         </children>
       </grid>
@@ -38,17 +34,24 @@
           <component id="bd746" class="javax.swing.JButton" binding="addRuleBut" custom-create="true">
             <constraints/>
             <properties>
-              <text value="Button"/>
+              <text value="Add Rule"/>
             </properties>
           </component>
         </children>
       </grid>
-      <grid id="3664e" binding="rulesPanel" custom-create="true" layout-manager="GridBagLayout">
+      <scrollpane id="6f74d" binding="rulesScroll" custom-create="true">
         <constraints border-constraint="Center"/>
         <properties/>
         <border type="none"/>
-        <children/>
-      </grid>
+        <children>
+          <grid id="3664e" binding="rulesPanel" custom-create="true" layout-manager="GridBagLayout">
+            <constraints/>
+            <properties/>
+            <border type="line" title="Contained Rules"/>
+            <children/>
+          </grid>
+        </children>
+      </scrollpane>
     </children>
   </grid>
 </form>

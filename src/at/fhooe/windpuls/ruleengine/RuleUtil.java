@@ -1,15 +1,16 @@
-package at.fhooe.windpuls.rule;
+package at.fhooe.windpuls.ruleengine;
 
-import at.fhooe.windpuls.rule.operation.binary.GreaterEquals;
+import at.fhooe.windpuls.ruleengine.operation.binary.GreaterEquals;
+import at.fhooe.windpuls.ruleengine.operation.binary.GreaterThan;
+import at.fhooe.windpuls.ruleengine.operation.binary.LessThan;
+import at.fhooe.windpuls.ruleengine.operation.ternary.InInterval;
+import at.fhooe.windpuls.ruleengine.rule.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -29,6 +30,18 @@ public class RuleUtil {
     protected static final Logger log = LogManager.getLogger();
 
     public static void main(String[] args) {
+        // Prepare rules
+        log.debug("Creating rules...");
+        Rule[] rules = {
+                new TimedRule(new SimpleRule("vLuft_Windkanal", 16.5, new GreaterEquals()), 10),
+                new RelationRule("qx_2","qy_2",new LessThan()),
+                new IntervalRule("vLuft_Windkanal",16.5,16.6,new InInterval())
+        };
+        analyze(rules);
+    }
+
+    public static void analyze(Rule[] rules) {
+        log.debug("Starting Analysis...");
         BufferedReader br = null;
         PrintWriter pw = null;
         try {
@@ -37,6 +50,9 @@ public class RuleUtil {
             // ...for reading
             br = new BufferedReader(new FileReader(IN_FILE));
             // ...for writing
+            File outFile = new File(OUT_FILE);
+            if (outFile.exists())
+                outFile.delete();
             pw = new PrintWriter(OUT_FILE);
 
             // Read and split header line
@@ -44,16 +60,13 @@ public class RuleUtil {
             String line = br.readLine();
             String[] cols = line.split(Pattern.quote(";"), -1);  // split by colon
 
-            // Prepare rules
-            log.debug("Creating rules...");
-            Rule[] rules = {
-                    new TimedRule(new SimpleRule("vLuft_Windkanal", 16.5, new GreaterEquals()), 10)
-            };
             log.debug("Looking up column numbers...");
             extractColumnNumbers(cols, rules);
 
             log.debug("Reading from file...");
+            int lineCount = 0;
             while (br.ready()) {
+                lineCount++;
                 log.trace("Splitting line...");
                 line = br.readLine();
                 String[] lineSplit = line.split(Pattern.quote(";"), -1);
@@ -71,18 +84,22 @@ public class RuleUtil {
 
                 log.trace("Checking all Conditions...");
                 final PrintWriter pwHelper = pw;
+                final int lineCountHelper = lineCount;
                 Arrays.stream(rules).parallel().forEach(rule -> {
-                    double newVal = lineData[rule.getColumnNr()];
-                    if (rule.match(newVal)) {
+                    double newVal, newVal2 = 0;
+                    if (rule.numColumns() > 1)
+                        newVal2 = lineData[rule.getColumnNr2()];
+                    newVal = lineData[rule.getColumnNr()];
+                    if ((rule.numColumns() > 1 && rule.match(newVal, newVal2)) || rule.match(newVal)) {
                         if (!(rule instanceof TimedRule) || ((TimedRule) rule).isNew()) {
-                            log.info("Match found for condition in line {}:\n{}", lineData[0], rule);
-                            pwHelper.println("Line " + lineData[0] + ": " + rule);
+                            log.info("Match found for condition in line {} with id {}:\n{}", lineCountHelper, lineData[0], rule);
+                            pwHelper.println("Line " + lineCountHelper + " with id " + lineData[0] + ": " + rule);
                         }
                     }
                 });
             }
         } catch (IOException ioe) {
-            log.error("IOException occured - aborting", ioe);
+            log.error("IOException occurred - aborting", ioe);
         } finally {
             try {
                 br.close();
@@ -95,9 +112,19 @@ public class RuleUtil {
                 log.error("Error closing PrintWriter", e);
             }
         }
+
+        log.debug("...Analysis complete");
     }
 
-    public static String[] loadColumnNames() {
+    private static String[] cols = null;
+
+    public static String[] getColumnNames() {
+        if (cols == null)
+            loadColumnNames();
+        return cols;
+    }
+
+    private static void loadColumnNames() {
         BufferedReader br = null;
         try {
             // Open file for reading
@@ -107,11 +134,11 @@ public class RuleUtil {
             // Read and split header line
             log.debug("Processing header...");
             String line = br.readLine();
-            String[] cols = line.split(Pattern.quote(";"), -1);  // split by colon
-            return cols;
+            cols = line.split(Pattern.quote(";"), -1);  // split by colon
+            //return cols;
         } catch (IOException ioe) {
             log.error("IOException occurred when loading column names", ioe);
-            return null;
+            //return null;
         } finally {
             try {
                 br.close();
@@ -120,7 +147,6 @@ public class RuleUtil {
             }
         }
     }
-
 
     public static void extractColumnNumbers(String[] cols, Rule... conds) {
         log.debug("Extracting Column Numbers...");
@@ -132,12 +158,20 @@ public class RuleUtil {
                     log.info("Column with name {} was found at # {}", cond.getColumn(), i);
                     cond.setColumnNr(i);
                 }
+                if (cond.numColumns() > 1 && col.equals(cond.getColumn2())) {
+                    log.info("Column2 with name {} was found at # {}", cond.getColumn2(), i);
+                    cond.setColumnNr2(i);
+                }
             }
         }
         for (Rule cond : conds) {
             log.info("{} has # {}", cond.getColumn(), cond.getColumnNr());
             if (cond.getColumnNr() == -1) {
                 log.fatal("Column {} was not found - aborting", cond.getColumn());
+                System.exit(-1);
+            }
+            if (cond.numColumns() > 1 && cond.getColumnNr2() == -1) {
+                log.fatal("Column2 {} was not found - aborting", cond.getColumn());
                 System.exit(-1);
             }
         }

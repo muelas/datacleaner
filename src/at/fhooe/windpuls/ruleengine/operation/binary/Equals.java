@@ -1,6 +1,6 @@
-package at.fhooe.windpuls.rule.operation.binary;
+package at.fhooe.windpuls.ruleengine.operation.binary;
 
-import at.fhooe.windpuls.rule.operation.OperationBinary;
+import at.fhooe.windpuls.ruleengine.operation.OperationBinary;
 
 public class Equals implements OperationBinary {
     @Override

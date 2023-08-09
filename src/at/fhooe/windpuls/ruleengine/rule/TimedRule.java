@@ -1,4 +1,4 @@
-package at.fhooe.windpuls.rule;
+package at.fhooe.windpuls.ruleengine.rule;
 
 public class TimedRule extends AbstractRule {
     final Rule cond;
@@ -7,8 +7,8 @@ public class TimedRule extends AbstractRule {
 
     // with side-effects!
     @Override
-    public boolean match(double newValue) {
-        if (checkMatch(newValue)) {
+    public boolean match(double... newValue) {
+        if (checkMatch(newValue[0])) {
             this.counter++;
             return this.counter >= this.frame;
         } else {

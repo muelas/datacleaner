@@ -1,6 +1,6 @@
-package at.fhooe.windpuls.rule;
+package at.fhooe.windpuls.ruleengine.rule;
 
-import at.fhooe.windpuls.rule.operation.OperationBinary;
+import at.fhooe.windpuls.ruleengine.operation.OperationBinary;
 
 public class SimpleRule extends AbstractRule {
 
@@ -12,7 +12,7 @@ public class SimpleRule extends AbstractRule {
     }
 
     @Override
-    public boolean match(double newValue) {
-        return op.compare(value, newValue);
+    public boolean match(double... newValue) {
+        return op.compare(value, newValue[0]);
     }
 }

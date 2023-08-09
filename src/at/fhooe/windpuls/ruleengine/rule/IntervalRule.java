@@ -1,6 +1,6 @@
-package at.fhooe.windpuls.rule;
+package at.fhooe.windpuls.ruleengine.rule;
 
-import at.fhooe.windpuls.rule.operation.OperationTernary;
+import at.fhooe.windpuls.ruleengine.operation.OperationTernary;
 
 public class IntervalRule extends AbstractRule {
     OperationTernary op;
@@ -11,7 +11,7 @@ public class IntervalRule extends AbstractRule {
     }
 
     @Override
-    public boolean match(double newValue) {
-        return op.compare(from, to, newValue);
+    public boolean match(double... newValue) {
+        return op.compare(from, to, newValue[0]);
     }
 }

@@ -1,6 +1,6 @@
-package at.fhooe.windpuls.rule.operation.ternary;
+package at.fhooe.windpuls.ruleengine.operation.ternary;
 
-import at.fhooe.windpuls.rule.operation.OperationTernary;
+import at.fhooe.windpuls.ruleengine.operation.OperationTernary;
 
 public class InInterval implements OperationTernary {
     @Override
