@@ -74,13 +74,5 @@ public abstract class AbstractRule implements Rule {
     }
 
     @Override
-    public String toString() {
-        if (this.to != Double.NEGATIVE_INFINITY) {
-            // Condition has from and to
-            return this.getClass().getSimpleName() + " with Interval " + this.from + " - " + this.to + " in column " + this.column + " (" + this.columnNr + ")";
-        } else {
-            // Condition with single value
-            return this.getClass().getSimpleName() + " for value " + this.value + " in column " + this.column + " (" + this.columnNr + ")";
-        }
-    }
+    public abstract String toString();
 }

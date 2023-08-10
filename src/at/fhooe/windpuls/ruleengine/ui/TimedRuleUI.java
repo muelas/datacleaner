@@ -11,10 +11,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class TimedRuleUI implements RuleUIComponent {
+public class TimedRuleUI extends RuleUIComponent {
     protected static final Logger log = LogManager.getLogger();
     public JPanel timedRulePanel;
-    private JLabel frameLab;
     private JTextField frameTex;
     private JButton addRuleBut;
     private JPanel rulesPanel;
@@ -29,36 +28,40 @@ public class TimedRuleUI implements RuleUIComponent {
 //        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         rulesScroll = new JScrollPane(rulesPanel);
-        rulesScroll.setPreferredSize(new Dimension(500, 200));
+//        rulesScroll.setPreferredSize(new Dimension(500, 200));
 
         addRuleBut = new JButton("Add Rule");
-        addRuleBut.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int ruleType = JOptionPane.showOptionDialog(timedRulePanel, "Select Type of Rule", "Rule Type", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[]{"Simple Rule", "Timed Rule"}, "Simple Rule");
+        addRuleBut.addActionListener(e -> {
+            int ruleType = JOptionPane.showOptionDialog(timedRulePanel, "Select Type of Rule", "Rule Type", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[]{"Simple Rule", "RelationRule", "IntervalRule"}, "Simple Rule");
 
-                JPanel ruleUI;
-                switch (ruleType) {
-                    case 0 -> {  // Simple Rule
-                        SimpleRuleUI rule = new SimpleRuleUI();
-                        ruleUI = rule.simpleRulePanel;
-                        rules.add(rule);
-                    }
-                    case 1 -> { // Timed Rule
-                        TimedRuleUI rule = new TimedRuleUI();
-                        ruleUI = rule.timedRulePanel;
-                        rules.add(rule);
-                    }
-                    default -> {
-                        log.warn("Unknown return type when adding new rule: {}", ruleType);
-                        return;
-                    }
+            RuleUIComponent rule;
+            switch (ruleType) {
+                case 0 -> {  // Simple Rule
+                    rule = new SimpleRuleUI();
                 }
-                rulesPanel.add(ruleUI, gbc);
-                rulesPanel.revalidate();
-                gbc.gridy++;
+//                    case 1 -> { // Timed Rule
+//                        // not applicable here
+//                        rule = new TimedRuleUI();
+//                    }
+                case 2 -> { // Relation Rule
+                    rule = new RelationRuleUI();
+                }
+                case 3 -> { //Interval Rule
+                    rule = new IntervalRuleUI();
+                }
+                default -> {
+                    log.warn("Unknown return type when adding new rule: {}", ruleType);
+                    return;
+                }
             }
+            rules.add(rule);
+            rulesPanel.add(rule.getRulePanel(), gbc);
+            rulesPanel.revalidate();
+            gbc.gridy++;
         });
+
+        this.timedRulePanel = new JPanel(new BorderLayout());
+        this.timedRulePanel.setPreferredSize(new Dimension(500, 100));
     }
 
     @Override
@@ -66,4 +69,17 @@ public class TimedRuleUI implements RuleUIComponent {
         TimedRule rule = new TimedRule(rules.get(0).getRule(), Integer.parseInt(this.frameTex.getText()));
         return rule;
     }
+
+    @Override
+    public JPanel getRulePanelInternal() {
+        return this.timedRulePanel;
+    }
+
+    @Override
+    public JPanel getRulePanel() {
+        JPanel p = getRulePanelInternal();
+        p.setPreferredSize(new Dimension(500, 300));
+        return p;
+    }
+
 }

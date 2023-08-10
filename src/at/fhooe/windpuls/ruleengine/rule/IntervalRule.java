@@ -14,4 +14,9 @@ public class IntervalRule extends AbstractRule {
     public boolean match(double... newValue) {
         return op.compare(from, to, newValue[0]);
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + ": " + this.column + " (#" + this.columnNr + ")" + op.toString() + " " + this.from + "..." + this.to;
+    }
 }

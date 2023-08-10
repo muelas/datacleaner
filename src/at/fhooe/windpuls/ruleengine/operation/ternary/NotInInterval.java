@@ -7,4 +7,9 @@ public class NotInInterval implements OperationTernary {
     public boolean compare(double from, double to, double current) {
         return !(from <= current && current >= to);
     }
+
+    @Override
+    public String toString() {
+        return "∉";
+    }
 }

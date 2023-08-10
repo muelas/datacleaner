@@ -1,7 +1,6 @@
 package at.fhooe.windpuls.ruleengine;
 
 import at.fhooe.windpuls.ruleengine.operation.binary.GreaterEquals;
-import at.fhooe.windpuls.ruleengine.operation.binary.GreaterThan;
 import at.fhooe.windpuls.ruleengine.operation.binary.LessThan;
 import at.fhooe.windpuls.ruleengine.operation.ternary.InInterval;
 import at.fhooe.windpuls.ruleengine.rule.*;
@@ -13,6 +12,7 @@ import org.reflections.scanners.SubTypesScanner;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -34,13 +34,18 @@ public class RuleUtil {
         log.debug("Creating rules...");
         Rule[] rules = {
                 new TimedRule(new SimpleRule("vLuft_Windkanal", 16.5, new GreaterEquals()), 10),
-                new RelationRule("qx_2","qy_2",new LessThan()),
-                new IntervalRule("vLuft_Windkanal",16.5,16.6,new InInterval())
+                new RelationRule("qx_2", "qy_2", new LessThan()),
+                new IntervalRule("vLuft_Windkanal", 16.5, 16.6, new InInterval())
         };
         analyze(rules);
     }
 
+
     public static void analyze(Rule[] rules) {
+        analyze(rules, false);
+    }
+
+    public static void analyze(Rule[] rules, boolean and) {
         log.debug("Starting Analysis...");
         BufferedReader br = null;
         PrintWriter pw = null;
@@ -85,18 +90,29 @@ public class RuleUtil {
                 log.trace("Checking all Conditions...");
                 final PrintWriter pwHelper = pw;
                 final int lineCountHelper = lineCount;
+
+                final AtomicBoolean match = new AtomicBoolean(true);
                 Arrays.stream(rules).parallel().forEach(rule -> {
                     double newVal, newVal2 = 0;
                     if (rule.numColumns() > 1)
                         newVal2 = lineData[rule.getColumnNr2()];
                     newVal = lineData[rule.getColumnNr()];
-                    if ((rule.numColumns() > 1 && rule.match(newVal, newVal2)) || rule.match(newVal)) {
-                        if (!(rule instanceof TimedRule) || ((TimedRule) rule).isNew()) {
+                    if (((rule.numColumns() > 1 && rule.match(newVal, newVal2)) || rule.match(newVal)) && (!(rule instanceof TimedRule) || ((TimedRule) rule).isNew())) {
+                        if (!and) {
                             log.info("Match found for condition in line {} with id {}:\n{}", lineCountHelper, lineData[0], rule);
                             pwHelper.println("Line " + lineCountHelper + " with id " + lineData[0] + ": " + rule);
                         }
+                    } else {
+                        match.set(false);
                     }
                 });
+                if (and && match.get()) {
+                    log.info("Match found for all conditions in line {} with id {}", lineCountHelper, lineData[0]);
+                    pwHelper.println("Line " + lineCountHelper + " with id " + lineData[0] + ": ");
+                    for (Rule r : rules) {
+                        pwHelper.println(r);
+                    }
+                }
             }
         } catch (IOException ioe) {
             log.error("IOException occurred - aborting", ioe);

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="at.fhooe.windpuls.ruleengine.ui.RelationRuleUI">
+  <grid id="27dc6" binding="relationRulePanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+    <constraints>
+      <xy x="20" y="20" width="368" height="77"/>
+    </constraints>
+    <properties/>
+    <border type="bevel-raised" title="Relation Rule"/>
+    <children>
+      <component id="ff54d" class="javax.swing.JComboBox" binding="column1Cb" custom-create="true">
+        <constraints/>
+        <properties/>
+      </component>
+      <component id="47911" class="javax.swing.JComboBox" binding="operationCb" custom-create="true">
+        <constraints/>
+        <properties/>
+      </component>
+      <component id="bee18" class="javax.swing.JComboBox" binding="column2Cb" custom-create="true">
+        <constraints/>
+        <properties/>
+      </component>
+    </children>
+  </grid>
+</form>
