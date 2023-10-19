@@ -17,7 +17,7 @@ public abstract class AbstractRule implements Rule {
         this.to = Double.NEGATIVE_INFINITY;
     }
 
-    public AbstractRule(String column, double to, double from) {
+    public AbstractRule(String column, double from, double to) {
         this.column = column;
         this.column2 = column;
         this.to = to;

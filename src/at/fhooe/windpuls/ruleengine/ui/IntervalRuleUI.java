@@ -47,7 +47,7 @@ public class IntervalRuleUI extends RuleUIComponent {
 
         NumberFormat format = DecimalFormat.getInstance();
         format.setMinimumFractionDigits(1);
-        format.setMaximumFractionDigits(2);
+        format.setMaximumFractionDigits(10);
         format.setParseIntegerOnly(false);
         format.setRoundingMode(RoundingMode.HALF_UP);
         fromTex = new JFormattedTextField(format);
@@ -85,7 +85,7 @@ public class IntervalRuleUI extends RuleUIComponent {
 
     @Override
     public Rule getRule() {
-        return new IntervalRule(columnCb.getSelectedItem().toString(), (double) fromTex.getValue(), (double) toTex.getValue(), (OperationTernary) operationCb.getSelectedItem());
+        return new IntervalRule(columnCb.getSelectedItem().toString(), Double.parseDouble(fromTex.getValue().toString()), Double.parseDouble(toTex.getValue().toString()), (OperationTernary) operationCb.getSelectedItem());
     }
 
     @Override

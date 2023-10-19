@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Set;
@@ -24,8 +25,11 @@ public class RuleUtil {
     public static final String ONEDRIVE_PATH = "\\OneDrive - FH OOe\\Dokumente\\FHOOE\\Forschung\\wind4you\\";
     public static final String IN_FILE_NAME = "cleaned.csv";
     public static final String OUT_FILE_NAME = "rule-result.txt";
-    public static final String IN_FILE = HOME_PATH + ONEDRIVE_PATH + IN_FILE_NAME;
-    public static final String OUT_FILE = HOME_PATH + ONEDRIVE_PATH + OUT_FILE_NAME;
+    //    public static final String IN_FILE = HOME_PATH + ONEDRIVE_PATH + IN_FILE_NAME;
+//    public static final String OUT_FILE = HOME_PATH + ONEDRIVE_PATH + OUT_FILE_NAME;
+    public static final String IN_FILE = ".\\res\\felge1_run2.csv";
+    public static final String OUT_FILE = ".\\res\\out.csv";
+
     // Logging
     protected static final Logger log = LogManager.getLogger();
 
@@ -46,6 +50,10 @@ public class RuleUtil {
     }
 
     public static void analyze(Rule[] rules, boolean and) {
+        analyze(rules, and, null, null);
+    }
+
+    public static void analyze(Rule[] rules, boolean and, JProgressBar progress, JDialog pd) {
         log.debug("Starting Analysis...");
         BufferedReader br = null;
         PrintWriter pw = null;
@@ -69,9 +77,11 @@ public class RuleUtil {
             extractColumnNumbers(cols, rules);
 
             log.debug("Reading from file...");
-            int lineCount = 0;
+            int lineCount = 1;
             while (br.ready()) {
                 lineCount++;
+                if (progress != null)
+                    progress.setValue(lineCount);
                 log.trace("Splitting line...");
                 line = br.readLine();
                 String[] lineSplit = line.split(Pattern.quote(";"), -1);
@@ -99,16 +109,27 @@ public class RuleUtil {
                     newVal = lineData[rule.getColumnNr()];
                     if (((rule.numColumns() > 1 && rule.match(newVal, newVal2)) || rule.match(newVal)) && (!(rule instanceof TimedRule) || ((TimedRule) rule).isNew())) {
                         if (!and) {
-                            log.info("Match found for condition in line {} with id {}:\n{}", lineCountHelper, lineData[0], rule);
-                            pwHelper.println("Line " + lineCountHelper + " with id " + lineData[0] + ": " + rule);
+                            // New CSVs have no id
+//                            log.info("Match found for condition in line {} with id {}:\n{}", lineCountHelper, lineData[0], rule);
+//                            pwHelper.println("Line " + lineCountHelper + " with id " + lineData[0] + ": " + rule);
+                            log.info("Match found for condition in line {}", lineCountHelper);
+                            if (rule.numColumns() > 1)
+                                log.info(", values {}/{}", newVal, newVal2);
+                            else
+                                log.info(", value {}", newVal);
+                            log.info(":\n{}", rule);
+                            pwHelper.println("Line " + lineCountHelper + ", " + (rule.numColumns() > 1 ? "values " + newVal + "/" + newVal2 : "value " + newVal) + ": " + rule);
                         }
                     } else {
                         match.set(false);
                     }
                 });
                 if (and && match.get()) {
-                    log.info("Match found for all conditions in line {} with id {}", lineCountHelper, lineData[0]);
-                    pwHelper.println("Line " + lineCountHelper + " with id " + lineData[0] + ": ");
+                    // New CSVs have no id
+//                    log.info("Match found for all conditions in line {} with id {}", lineCountHelper, lineData[0]);
+//                    pwHelper.println("Line " + lineCountHelper + " with id " + lineData[0] + ": ");
+                    log.info("Match found for all conditions in line {}", lineCountHelper);
+                    pwHelper.println("Line " + lineCountHelper + ": ");
                     for (Rule r : rules) {
                         pwHelper.println(r);
                     }
@@ -129,6 +150,7 @@ public class RuleUtil {
             }
         }
 
+        pd.setVisible(false);
         log.debug("...Analysis complete");
     }
 
@@ -161,6 +183,28 @@ public class RuleUtil {
             } catch (Exception e) {
                 log.error("Error closing BufferedReader", e);
             }
+        }
+    }
+
+    public static int getLineCount() {
+        char[] buff = new char[32768];
+        int cnt = 0;
+        int read = 0;
+        try (FileReader in = new FileReader(IN_FILE)) {
+            do {
+                read = in.read(buff);
+                for (int i = 0; i < read; i++) {
+                    if (buff[i] == '\n')
+                        cnt++;
+                }
+            } while (read > 0);
+            return cnt;
+        } catch (FileNotFoundException e) {
+            log.error("Error counting lines - file not found", e);
+            return -1;
+        } catch (IOException e) {
+            log.error("Error counting lines", e);
+            return -1;
         }
     }
 

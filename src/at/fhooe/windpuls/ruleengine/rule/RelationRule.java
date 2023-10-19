@@ -14,7 +14,7 @@ public class RelationRule extends AbstractRule {
     public boolean match(double... newValue) {
         if (newValue.length != 2)
             return false;
-        return op.compare(newValue[0], newValue[1]);
+        return op.compare(newValue[1], newValue[0]);
     }
 
     @Override
@@ -25,6 +25,6 @@ public class RelationRule extends AbstractRule {
     @Override
     public String toString() {
         // Condition with two columns
-        return this.getClass().getSimpleName() + ": " + this.column + " " + this.op.toString() + " " + this.column;
+        return this.getClass().getSimpleName() + ": " + this.column + " " + this.op.toString() + " " + this.column2;
     }
 }

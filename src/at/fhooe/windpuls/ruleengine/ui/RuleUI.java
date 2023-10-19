@@ -129,8 +129,27 @@ public class RuleUI extends JFrame {
     private JButton getStartButton() {
         JButton startButton = new JButton("Start Analysis");
         startButton.addActionListener(e -> {
+            // Get selected rules
             Rule[] r = rules.stream().map(RuleUIComponent::getRule).toArray(Rule[]::new);
-            RuleUtil.analyze(r,andRadio.isSelected());
+
+            // prepare Progress Dialog
+            int lineCnt = RuleUtil.getLineCount();
+            JDialog pd = new JDialog(this, true);
+            pd.setLayout(new BorderLayout());
+            pd.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            pd.setSize(200,80);
+            pd.setLocationRelativeTo(this);
+
+            JProgressBar prog = new JProgressBar(JProgressBar.HORIZONTAL, 0, lineCnt);
+            prog.setStringPainted(true);
+            pd.add(prog, BorderLayout.CENTER);
+            pd.add(new JLabel("Analyzing..."), BorderLayout.NORTH);
+
+            // Start analysis
+            Thread t = new Thread(() -> RuleUtil.analyze(r, andRadio.isSelected(), prog, pd));
+            t.start();
+            pd.setVisible(true);
+            // Analysis done - writing output
             try {
                 BufferedReader br = new BufferedReader(new FileReader(RuleUtil.OUT_FILE));
                 outputArea.setText("");
