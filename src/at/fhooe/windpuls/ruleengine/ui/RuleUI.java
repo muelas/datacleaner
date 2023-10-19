@@ -7,7 +7,10 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,6 +29,9 @@ public class RuleUI extends JFrame {
 
     private JRadioButton andRadio;
     private JRadioButton orRadio;
+
+    private JTextField inPath;
+    private JTextField outPath;
 
     public RuleUI() throws HeadlessException {
         super("RuleUI");
@@ -60,6 +66,47 @@ public class RuleUI extends JFrame {
         southPanel.add(orRadio);
 
         this.add(southPanel, BorderLayout.SOUTH);
+
+        // in/out path selections
+        JPanel northPanel = new JPanel(new GridLayout(2, 1));
+        JPanel inPanel = new JPanel(new BorderLayout());
+        JLabel inLabel = new JLabel("Input File: ");
+        inPanel.add(inLabel, BorderLayout.WEST);
+        inPath = new JTextField("");
+        inPath.setEditable(false);
+        inPanel.add(inPath, BorderLayout.CENTER);
+        JButton inButton = new JButton("Select");
+        inButton.addActionListener(e -> {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogType(JFileChooser.OPEN_DIALOG);
+            fc.setFileFilter(new FileNameExtensionFilter("Comma Separated Values", "csv"));
+            if (fc.showOpenDialog(RuleUI.this) == JFileChooser.APPROVE_OPTION) {
+                inPath.setText(fc.getSelectedFile().getAbsolutePath());
+            }
+        });
+        inPanel.add(inButton, BorderLayout.EAST);
+
+        JPanel outPanel = new JPanel(new BorderLayout());
+        JLabel outLabel = new JLabel("Output File: ");
+        outPanel.add(outLabel, BorderLayout.WEST);
+        outPath = new JTextField("");
+        outPath.setEditable(false);
+        outPanel.add(outPath, BorderLayout.CENTER);
+        JButton outButton = new JButton("Select");
+        outButton.addActionListener(e -> {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogType(JFileChooser.SAVE_DIALOG);
+            fc.setFileFilter(new FileNameExtensionFilter("Text", "txt"));
+            if (fc.showSaveDialog(RuleUI.this) == JFileChooser.APPROVE_OPTION) {
+                outPath.setText(fc.getSelectedFile().getAbsolutePath());
+            }
+        });
+        outPanel.add(outButton, BorderLayout.EAST);
+
+        northPanel.add(inPanel);
+        northPanel.add(outPanel);
+        this.add(northPanel, BorderLayout.NORTH);
+
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(new Dimension(700, 500));
@@ -137,7 +184,7 @@ public class RuleUI extends JFrame {
             JDialog pd = new JDialog(this, true);
             pd.setLayout(new BorderLayout());
             pd.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            pd.setSize(200,80);
+            pd.setSize(200, 80);
             pd.setLocationRelativeTo(this);
 
             JProgressBar prog = new JProgressBar(JProgressBar.HORIZONTAL, 0, lineCnt);
@@ -146,7 +193,7 @@ public class RuleUI extends JFrame {
             pd.add(new JLabel("Analyzing..."), BorderLayout.NORTH);
 
             // Start analysis
-            Thread t = new Thread(() -> RuleUtil.analyze(r, andRadio.isSelected(), prog, pd));
+            Thread t = new Thread(() -> RuleUtil.analyze(r, andRadio.isSelected(), (inPath.getText().isEmpty() ? null : inPath.getText()), (outPath.getText().isEmpty() ? null : outPath.getText()), prog, pd));
             t.start();
             pd.setVisible(true);
             // Analysis done - writing output

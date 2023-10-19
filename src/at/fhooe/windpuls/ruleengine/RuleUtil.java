@@ -52,7 +52,7 @@ public class RuleUtil {
     }
 
     public static void analyze(Rule[] rules, boolean and) {
-        analyze(rules, and, null, null);
+        analyze(rules, and, null, null, null, null);
     }
 
     /**
@@ -60,23 +60,27 @@ public class RuleUtil {
      *
      * @param rules    the set of rules that should be used for the analysis
      * @param and      if true, a line only matches, if all rules match, otherwise a single matching rule suffices
+     * @param inPath   optional path to the file to analyze (can be null)
+     * @param outPath  optional path to the output file (can be null)
      * @param progress the progress bar used in the UI to indicate the analysis progress (can be null)
      * @param pd       the UI progress dialog - will be closed when the analysis is finished (can be null)
      */
-    public static void analyze(@NotNull Rule[] rules, boolean and, @Nullable JProgressBar progress, @Nullable JDialog pd) {
+    public static void analyze(@NotNull Rule[] rules, boolean and, @Nullable String inPath, @Nullable String outPath, @Nullable JProgressBar progress, @Nullable JDialog pd) {
         log.debug("Starting Analysis...");
         BufferedReader br = null;
         PrintWriter pw = null;
         try {
+            final String IN = (inPath == null ? IN_FILE : inPath);
+            final String OUT = (outPath == null ? OUT_FILE : outPath);
             // Open files...
             log.debug("Opening files...");
             // ...for reading
-            br = new BufferedReader(new FileReader(IN_FILE));
+            br = new BufferedReader(new FileReader(IN));
             // ...for writing
-            File outFile = new File(OUT_FILE);
+            File outFile = new File(OUT);
             if (outFile.exists())
                 outFile.delete();
-            pw = new PrintWriter(OUT_FILE);
+            pw = new PrintWriter(OUT);
 
             // Read and split header line
             log.debug("Processing header...");
