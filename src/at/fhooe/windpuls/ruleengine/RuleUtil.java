@@ -6,6 +6,8 @@ import at.fhooe.windpuls.ruleengine.operation.ternary.InInterval;
 import at.fhooe.windpuls.ruleengine.rule.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 
@@ -53,7 +55,15 @@ public class RuleUtil {
         analyze(rules, and, null, null);
     }
 
-    public static void analyze(Rule[] rules, boolean and, JProgressBar progress, JDialog pd) {
+    /**
+     * Analyze the current IN_FILE and write the result to the current OUT_FILE
+     *
+     * @param rules    the set of rules that should be used for the analysis
+     * @param and      if true, a line only matches, if all rules match, otherwise a single matching rule suffices
+     * @param progress the progress bar used in the UI to indicate the analysis progress (can be null)
+     * @param pd       the UI progress dialog - will be closed when the analysis is finished (can be null)
+     */
+    public static void analyze(@NotNull Rule[] rules, boolean and, @Nullable JProgressBar progress, @Nullable JDialog pd) {
         log.debug("Starting Analysis...");
         BufferedReader br = null;
         PrintWriter pw = null;
@@ -150,7 +160,8 @@ public class RuleUtil {
             }
         }
 
-        pd.setVisible(false);
+        if (pd != null)
+            pd.setVisible(false);
         log.debug("...Analysis complete");
     }
 
